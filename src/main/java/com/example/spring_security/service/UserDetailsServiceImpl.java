@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     /*
       1. Member(실제 DB 매핑된 엔티티) 와 UserDetails 를 상속한 User 는 다른 개념
@@ -38,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserDetails createUserDetails(Member member) {
         return User.builder()
                 .username(member.getEmail())
-                .password(member.getPassword())
+                .password(passwordEncoder.encode(member.getPassword()))
                 .authorities(member.getRoles()
                         .stream()
                         .map(SimpleGrantedAuthority::new)

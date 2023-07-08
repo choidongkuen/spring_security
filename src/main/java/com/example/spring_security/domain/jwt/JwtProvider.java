@@ -31,7 +31,7 @@ public class JwtProvider {
     @Value("${jwt.access.expire-time}")
     private Long accessTokenExpireTime;
 
-    @Value("${jwt.refresh.refresh-time}")
+    @Value("${jwt.refresh.expire-time}")
     private Long refreshTokenExpireTime;
 
 
