@@ -6,7 +6,7 @@ spring:
     name: spring_security_jwt
 
   datasource:
-    url: jdbc:h2:~/${DATABASE_NAME:security}
+    url: jdbc:h2:~/${DATABASE_NAME:security};MODE=MySQL
     # jdbc:h2:tcp://localhost/~/lee-do
     username: sa
     password: 1111
