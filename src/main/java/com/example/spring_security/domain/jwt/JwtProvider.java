@@ -1,19 +1,24 @@
 package com.example.spring_security.domain.jwt;
 
-import antlr.Token;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.naming.AuthenticationException;
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -56,7 +61,7 @@ public class JwtProvider {
 
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("authorization",authorities)
+                .claim("authorization", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -73,5 +78,33 @@ public class JwtProvider {
                 .build();
     }
 
+    /*
+        요청으로 들어온 accessToken 을 통해 Authentication 을 가져오는 메소드
+     */
+    public Authentication getAuthentication(String accessToken) {
+        Claims claims = parseClaims(accessToken);
 
+        if (claims.get("authorization") == null) {
+            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+
+        }
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get("authorization").toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
+
+    private Claims parseClaims(String accessToken) {
+
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
 }
