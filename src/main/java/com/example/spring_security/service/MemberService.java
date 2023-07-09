@@ -4,6 +4,7 @@ import com.example.spring_security.domain.entity.Member;
 import com.example.spring_security.domain.jwt.JwtProvider;
 import com.example.spring_security.domain.jwt.TokenInfo;
 import com.example.spring_security.domain.repository.MemberRepository;
+import com.example.spring_security.dto.GetMemberInfoResponseDto;
 import com.example.spring_security.dto.MemberLoginRequestDto;
 import com.example.spring_security.dto.MemberSignUpRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -56,5 +57,13 @@ public class MemberService {
         if (!request.getPassword().equals(request.getRePassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public GetMemberInfoResponseDto getMemberInfo(Long memberId) {
+        Member member = this.memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("일치하는 회원이 존재하지 않습니다."));
+
+        return GetMemberInfoResponseDto.from(member);
     }
 }

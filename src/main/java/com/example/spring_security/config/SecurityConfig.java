@@ -1,5 +1,7 @@
 package com.example.spring_security.config;
 
+import com.example.spring_security.domain.jwt.JwtProvider;
+import com.example.spring_security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,11 +10,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtProvider jwtProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -26,7 +31,8 @@ public class SecurityConfig {
         http.authorizeRequests()
                 .antMatchers("/member/login").permitAll()
                 .antMatchers("/member/join").permitAll()
-                .antMatchers("/member").hasRole("USER");
+                .antMatchers("/member").hasRole("USER")
+                .and().addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         http.csrf().disable();
         http.headers().frameOptions().disable();
