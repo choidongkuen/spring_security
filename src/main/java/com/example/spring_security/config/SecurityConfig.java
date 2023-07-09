@@ -20,6 +20,14 @@ public class SecurityConfig {
                 .antMatchers("/h2-console/**")
                 .permitAll();
 
+        http.formLogin().disable()
+                .httpBasic().disable();
+
+        http.authorizeRequests()
+                .antMatchers("/member/login").permitAll()
+                .antMatchers("/member/join").permitAll()
+                .antMatchers("/member").hasRole("USER");
+
         http.csrf().disable();
         http.headers().frameOptions().disable();
         return http.build();

@@ -41,10 +41,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserDetails createUserDetails(Member member) {
         return User.builder()
                 .username(member.getEmail())
-                .password(passwordEncoder.encode(member.getPassword()))
+                .password(member.getPassword())
                 .authorities(member.getRoles()
                         .stream()
-                        .map(SimpleGrantedAuthority::new)
+                        .map(e -> new SimpleGrantedAuthority(e.name()))
                         .collect(Collectors.toList()))
                 .build();
 
