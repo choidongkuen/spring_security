@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -26,7 +26,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-//                .formLogin().disable()
                 .httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
@@ -40,8 +39,15 @@ public class SecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        /** JwtAuthenticationFitler 를 먼저 적용 **/
         http.headers().frameOptions().disable();
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .headers()
+                .frameOptions()
+                .sameOrigin();
+
         return http.build();
     }
 

@@ -51,6 +51,8 @@ public class JwtProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        log.info(authorities);
+
         long now = new Date().getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
 

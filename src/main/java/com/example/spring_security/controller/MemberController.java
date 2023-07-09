@@ -43,6 +43,5 @@ public class MemberController {
             @PathVariable(value = "memberId") Long memberId
     ) {
         return new ResponseEntity<>(this.memberService.getMemberInfo(memberId), HttpStatus.OK);
-
     }
 }
