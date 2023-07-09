@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider {
 
+    private final static String AUTHORITIES = "authorities";
     private final Key key;
-
     @Value("${jwt.access.expire-time}")
     private Long accessTokenExpireTime;
 
@@ -51,7 +51,6 @@ public class JwtProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        log.info(authorities);
 
         long now = new Date().getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
@@ -60,7 +59,7 @@ public class JwtProvider {
 
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("authorization", authorities)
+                .claim(AUTHORITIES, authorities) // payload 에 claim 추가
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -83,13 +82,13 @@ public class JwtProvider {
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("authorization") == null) {
+        if (claims.get(AUTHORITIES) == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
 
         }
 
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("authorization").toString().split(","))
+                Arrays.stream(claims.get(AUTHORITIES).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
