@@ -36,7 +36,7 @@ public class JwtProvider {
      * @Value 는 생성자 호출 이후에 값 주입된다
      * -> 생성자 파라미터에 적용하면 생성자 호출 시 값 주입
      */
-    public JwtProvider(@Value("${JWT_SECRET_KEY}") String secretKey) {
+    public JwtProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
